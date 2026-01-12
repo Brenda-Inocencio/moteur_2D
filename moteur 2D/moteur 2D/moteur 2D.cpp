@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "background.h"
 
 int main(int argc, char** argv) {
     SDL_Window* window;
@@ -9,7 +10,7 @@ int main(int argc, char** argv) {
     if (!SDL_Init(SDL_INIT_VIDEO))
         return 1;
 
-    if (!SDL_CreateWindowAndRenderer("Magma Shooter", 1024, 768, 0,
+    if (!SDL_CreateWindowAndRenderer("platformer", 1024, 768, 0,
         &window, &renderer))
         return 1;
 
@@ -23,6 +24,8 @@ int main(int argc, char** argv) {
 
     SDL_SetRenderLogicalPresentation(renderer, 1024, 768,
         SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+    Background bg(renderer);
 
     bool isGameOver = false;
     bool isWin = false;
@@ -132,10 +135,11 @@ int main(int argc, char** argv) {
                 }
             }*/
         }
-
         SDL_RenderClear(renderer);
+        bg.Render(renderer);
 
         /*if (isWin) {
+        bg.Render(renderer);
             if (isLvl1) {
                 menu.MenuNextLevelRenderer(renderer, win, play);
             }
@@ -145,11 +149,13 @@ int main(int argc, char** argv) {
             score->Render(renderer);
         }
         else if (isGameOver) {
+        bg.Render(renderer);
             menu.MenuGameOverRenderer(renderer, gameOver);
             score->Render(renderer);
             gameStart = false;
         }
         else if (isPaused) {
+        bg.Render(renderer);+54
             menu.MenuPauseRenderer(renderer, pause, play);
         }
         else if (gameStart) {

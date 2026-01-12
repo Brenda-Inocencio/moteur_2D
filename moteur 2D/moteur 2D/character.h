@@ -1,5 +1,5 @@
 #pragma once
-class character
+class Character
 {
 };
 
