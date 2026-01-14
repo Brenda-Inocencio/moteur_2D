@@ -30,3 +30,5 @@ void Character::Moving(float dt, bool isLeft, bool isRight) {
 		pos_x += 50 * dt;
 	}
 }
+
+// TODO: finir les deplacements et la table d etat (enum et switch)

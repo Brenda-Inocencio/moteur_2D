@@ -1,9 +1,15 @@
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <vector>
 #include "background.h"
+#include "block.h"
 #include "character.h"
 
-#define WORLD_WITH 
+#define WORLD_WIDTH 10
+#define WORLD_HEIGHT 50
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 768
 
 int main(int argc, char** argv) {
     SDL_Window* window;
@@ -28,9 +34,15 @@ int main(int argc, char** argv) {
     SDL_SetRenderLogicalPresentation(renderer, 1024, 768,
         SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
+    
     Background bg(renderer);
     Character ch(renderer);
-
+    SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
+    if (!blockTexture) {
+        SDL_Log("Erreur de chargement %s", SDL_GetError());
+    }
+    Block* bl = new Block(blockTexture);
+//    std::vector<Block*> blocks;
     bool isGameOver = false;
     bool isWin = false;
     bool gameStart = false;
@@ -41,6 +53,7 @@ int main(int argc, char** argv) {
     bool isJump = false;
     bool isGrab = false;
     bool isSwapGrid = false;
+    float cooldown = 0;
     float gameTime = 0;
     float timePrev = 0;
     float timeStart = 0;
@@ -48,7 +61,6 @@ int main(int argc, char** argv) {
         float now = float(SDL_GetTicks()) / 1000.0f;
         float dt = now - timePrev;
         timePrev = now;
-
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
@@ -88,7 +100,10 @@ int main(int argc, char** argv) {
         SDL_RenderClear(renderer);
         bg.Render(renderer);
         ch.Render(renderer);
-
+        bl->Render(renderer);
+        /*for (int i = 0; i < blocks.size(); i++) {
+            blocks[i]->Render(renderer);
+        }*/
         /*if (isWin) {
         bg.Render(renderer);
             if (isLvl1) {
@@ -135,6 +150,11 @@ int main(int argc, char** argv) {
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    //for (int i = 0; i < blocks.size(); i++) 
+    {
+        delete bl; bl = nullptr;
+    }
+    //blocks.clear();
     SDL_Quit();
     TTF_Quit();
     return 0;
