@@ -1,15 +1,20 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <vector>
+#include "background.h"
+#include "block.h"
 
 int main(int argc, char** argv) {
     SDL_Window* window;
     SDL_Renderer* renderer;
+    int windowWidth = 1024;
+    int windowHeight = 768;
 
-    SDL_SetAppMetadata("SDL Test", "1.0", "games.anakata.test-sdl");
+    SDL_SetAppMetadata("SDL Test", "1.0", "com.platformer.test-sdl");
     if (!SDL_Init(SDL_INIT_VIDEO))
         return 1;
 
-    if (!SDL_CreateWindowAndRenderer("Magma Shooter", 1024, 768, 0,
+    if (!SDL_CreateWindowAndRenderer("platformer", windowWidth, windowHeight, 0,
         &window, &renderer))
         return 1;
 
@@ -21,8 +26,11 @@ int main(int argc, char** argv) {
         SDL_Log("Erreur TTF_Init: %s", SDL_GetError());
     }
 
-    SDL_SetRenderLogicalPresentation(renderer, 1024, 768,
+    SDL_SetRenderLogicalPresentation(renderer, windowWidth, windowHeight,
         SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+    Background bg(renderer);
+    std::vector<Block*> blocks;
 
     bool isGameOver = false;
     bool isWin = false;
@@ -32,6 +40,7 @@ int main(int argc, char** argv) {
     float gameTime = 0;
     float timePrev = 0;
     float timeStart = 0;
+    float cooldown = 0;
     while (keepGoing) {
         float now = float(SDL_GetTicks()) / 1000.0f;
         float dt = now - timePrev;
@@ -41,101 +50,25 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
                 keepGoing = false;
-            /*else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-                float mx = event.button.x;
-                float my = event.button.y;
-                if (isPaused) {
-                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            isPaused = false;
-                            gameStart = false;
-                        }
-                    }
-                    if (mx >= play->buttonRect.x && mx <= play->buttonRect.x + play->buttonRect.w &&
-                        my >= play->buttonRect.y && my <= play->buttonRect.y + play->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            play->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            isPaused = false;
-                        }
-                    }
-                }
-                else if (isWin) {
-                    if (isLvl1 && mx >= start->buttonRect.x && mx <= start->buttonRect.x + start->buttonRect.w &&
-                        my >= start->buttonRect.y && my <= start->buttonRect.y + start->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            start->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            isWin = false;
-                            isLvl1 = false;
-                            timeStart = now;
-                            gameTime = now - timeStart;
-                            shootCooldown = gameTime;
-                        }
-                    }
-                    else if (!isLvl1 && mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            keepGoing = false;
-                        }
-                    }
-                }
-                else if (!gameStart) {
-                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            keepGoing = false;
-                        }
-                    }
-                    if (mx >= start->buttonRect.x && mx <= start->buttonRect.x + start->buttonRect.w &&
-                        my >= start->buttonRect.y && my <= start->buttonRect.y + start->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            start->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            gameStart = true;
-                            timeStart = now;
-                        }
-                    }
-                }
+            
+        }
+        SDL_RenderClear(renderer);
+        bg.Render(renderer, windowWidth);
+        timeStart = now;
+        gameStart = now - timeStart;
+        if (cooldown >= 5) {
+            Block* block = new Block(renderer);
+            blocks.push_back(block);
+        }
+        while (true) {
+            for (int i = 0; i < blocks.size(); i++) {
+                blocks[i]->Render(renderer);
+                blocks[i]->Update(gameStart, dt);
             }
-            if (event.type == SDL_EVENT_KEY_DOWN) {
-                switch (event.key.key) {
-                case SDLK_Z: isUp = true; break;
-                case SDLK_D: isRight = true; break;
-                case SDLK_Q: isLeft = true; break;
-                case SDLK_S: isDown = true; break;
-
-                case SDLK_SPACE:
-                    if (canShoot) {
-                        Shoot* shoot = new Shoot(renderer, ship);
-                        shoots.push_back(shoot);
-                        canShoot = false;
-                        shootCooldown = gameTime;
-                    }
-                    break;
-                case SDLK_ESCAPE: isPaused = !isPaused; break;
-                }
-            }
-            if (event.type == SDL_EVENT_KEY_UP) {
-                switch (event.key.key) {
-                case SDLK_Z: isUp = false; break;
-                case SDLK_D: isRight = false; break;
-                case SDLK_Q: isLeft = false; break;
-                case SDLK_S: isDown = false; break;
-                }
-            }*/
         }
 
-        SDL_RenderClear(renderer);
-
         /*if (isWin) {
+        bg.Render(renderer, windowWidth);
             if (isLvl1) {
                 menu.MenuNextLevelRenderer(renderer, win, play);
             }
@@ -145,11 +78,13 @@ int main(int argc, char** argv) {
             score->Render(renderer);
         }
         else if (isGameOver) {
+        bg.Render(renderer, windowWidth);
             menu.MenuGameOverRenderer(renderer, gameOver);
             score->Render(renderer);
             gameStart = false;
         }
         else if (isPaused) {
+        bg.Render(renderer, windowWidth);+54
             menu.MenuPauseRenderer(renderer, pause, play);
         }
         else if (gameStart) {
@@ -178,6 +113,7 @@ int main(int argc, char** argv) {
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    blocks.clear();
     SDL_Quit();
     TTF_Quit();
     return 0;
