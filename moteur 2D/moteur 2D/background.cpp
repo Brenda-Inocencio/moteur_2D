@@ -4,6 +4,8 @@
 
 Background::Background(SDL_Renderer* _renderer) {
 	texture = IMG_LoadTexture(_renderer, "grid.png");
+	width = 700;
+	height = 768;
 	if (!texture) {
 		SDL_Log("Erreur chargement image: %s", SDL_GetError());
 	}
@@ -15,9 +17,9 @@ Background::~Background() {
 	}
 }
 
-void Background::Render(SDL_Renderer* _renderer) {
+void Background::Render(SDL_Renderer* _renderer, int windowWidth) {
 	if (texture) {
-		SDL_FRect rect = {162, 0, 700, 768};
+		SDL_FRect rect = {(windowWidth - width) / 2, 0, width, height};
 		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }
