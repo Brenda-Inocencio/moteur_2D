@@ -141,13 +141,21 @@
   <ItemGroup>
     <ClCompile Include="background.cpp" />
     <ClCompile Include="block.cpp" />
+    <ClCompile Include="button.cpp" />
     <ClCompile Include="character.cpp" />
+    <ClCompile Include="exit.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="moteur 2D.cpp" />
+    <ClCompile Include="start.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="background.h" />
     <ClInclude Include="block.h" />
+    <ClInclude Include="button.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="exit.h" />
+    <ClInclude Include="menu.h" />
+    <ClInclude Include="start.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

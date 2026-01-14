@@ -77,7 +77,7 @@ Block::Block(SDL_Renderer* _renderer) {
 	case 5:
 		switch (direction) {
 		case 1:
-			texture = IMG_LoadTexture(_renderer, "l.png");
+			texture = IMG_LoadTexture(_renderer, "L.png");
 			if (!texture) {
 				SDL_Log("Erreur chargement image: %s", SDL_GetError());
 			}
