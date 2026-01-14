@@ -3,6 +3,8 @@
 #include "background.h"
 #include "character.h"
 
+#define WORLD_WITH 
+
 int main(int argc, char** argv) {
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -34,6 +36,11 @@ int main(int argc, char** argv) {
     bool gameStart = false;
     bool isPaused = false;
     bool keepGoing = true;
+    bool isLeft = false;
+    bool isRight = false;
+    bool isJump = false;
+    bool isGrab = false;
+    bool isSwapGrid = false;
     float gameTime = 0;
     float timePrev = 0;
     float timeStart = 0;
@@ -46,96 +53,37 @@ int main(int argc, char** argv) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
                 keepGoing = false;
-            /*else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-                float mx = event.button.x;
-                float my = event.button.y;
-                if (isPaused) {
-                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            isPaused = false;
-                            gameStart = false;
-                        }
-                    }
-                    if (mx >= play->buttonRect.x && mx <= play->buttonRect.x + play->buttonRect.w &&
-                        my >= play->buttonRect.y && my <= play->buttonRect.y + play->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            play->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            isPaused = false;
-                        }
-                    }
-                }
-                else if (isWin) {
-                    if (isLvl1 && mx >= start->buttonRect.x && mx <= start->buttonRect.x + start->buttonRect.w &&
-                        my >= start->buttonRect.y && my <= start->buttonRect.y + start->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            start->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            isWin = false;
-                            isLvl1 = false;
-                            timeStart = now;
-                            gameTime = now - timeStart;
-                            shootCooldown = gameTime;
-                        }
-                    }
-                    else if (!isLvl1 && mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            keepGoing = false;
-                        }
-                    }
-                }
-                else if (!gameStart) {
-                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            keepGoing = false;
-                        }
-                    }
-                    if (mx >= start->buttonRect.x && mx <= start->buttonRect.x + start->buttonRect.w &&
-                        my >= start->buttonRect.y && my <= start->buttonRect.y + start->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            start->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            gameStart = true;
-                            timeStart = now;
-                        }
-                    }
-                }
-            }
             if (event.type == SDL_EVENT_KEY_DOWN) {
-                switch (event.key.key) {
-                case SDLK_Z: isUp = true; break;
-                case SDLK_D: isRight = true; break;
-                case SDLK_Q: isLeft = true; break;
-                case SDLK_S: isDown = true; break;
-
-                case SDLK_SPACE:
-                    if (canShoot) {
-                        Shoot* shoot = new Shoot(renderer, ship);
-                        shoots.push_back(shoot);
-                        canShoot = false;
-                        shootCooldown = gameTime;
-                    }
-                    break;
-                case SDLK_ESCAPE: isPaused = !isPaused; break;
+                if (event.key.key == SDLK_Z) {
+                    isJump = true;
+                }
+                if (event.key.key == SDLK_Q) {
+                    isLeft = true;
+                }
+                if (event.key.key == SDLK_D) {
+                    isRight = true;
+                }
+                if (event.key.key == SDLK_S) {
+                    isGrab = !isGrab;
+                }
+                if (event.key.key == SDLK_SPACE) {
+                    isSwapGrid = true;
                 }
             }
             if (event.type == SDL_EVENT_KEY_UP) {
-                switch (event.key.key) {
-                case SDLK_Z: isUp = false; break;
-                case SDLK_D: isRight = false; break;
-                case SDLK_Q: isLeft = false; break;
-                case SDLK_S: isDown = false; break;
+                if (event.key.key == SDLK_Z) {
+                    isJump = false;
                 }
-            }*/
+                if (event.key.key == SDLK_Q) {
+                    isLeft = false;
+                }
+                if (event.key.key == SDLK_D) {
+                    isRight = false;
+                }
+                if (event.key.key == SDLK_SPACE) {
+                    isSwapGrid = false;
+                }
+            }
         }
         SDL_RenderClear(renderer);
         bg.Render(renderer);

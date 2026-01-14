@@ -21,3 +21,12 @@ void Character::Render(SDL_Renderer* _renderer) {
 		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }
+
+void Character::Moving(float dt, bool isLeft, bool isRight) {
+	while (isLeft) {
+		pos_x -= 50 * dt;
+	}
+	while (isRight) {
+		pos_x += 50 * dt;
+	}
+}
