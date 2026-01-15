@@ -1,15 +1,27 @@
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <vector>
+#include "game.h"
 #include "background.h"
 #include "block.h"
+#include "character.h"
 #include "menu.h"
 #include "button.h"
 #include "exit.h"
 #include "start.h"
 
+#define WORLD_WIDTH 10
+#define WORLD_HEIGHT 50
 #define WINDOW_WIDTH 1024 
 #define WINDOW_HEIGHT 768
+
+void BlockSpawn(std::vector<Block*>& blocks, SDL_Texture* blockTexture, float cooldownSpawn, float gameTime) {
+    if (gameTime - cooldownSpawn >= 3) {
+        blocks.push_back(new Block(blockTexture));
+        cooldownSpawn = gameTime;
+    }
+}
 
 int main(int argc, char** argv) {
     SDL_Window* window;
@@ -34,25 +46,40 @@ int main(int argc, char** argv) {
     SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
-    Background bg(renderer);
+    Game game;
+    Background* bg = new Background(renderer);
+
+    Character* ch = new Character(renderer);
+    SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
+    if (!blockTexture) {
+        SDL_Log("Erreur de chargement %s", SDL_GetError());
+    }
+    Block* bl = new Block(blockTexture);
+    std::vector<Block*> blocks;
+
     Button* exit = new Exit(renderer);
     Button* start = new Start(renderer);
     Menu menu;
+    std::vector<SDL_Event> events;
 
-    std::vector<Block*> blocks;
+    bool isGameOver = false;
+    bool isWin = false;
+    bool isPaused = false;
+
     bool gameStart = false;
     bool keepGoing = true;
 
     float gameTime = 0;
     float timePrev = 0;
     float timeStart = 0;
-    float cooldown = 0;
+    float cooldownSpawn = 0;
     while (keepGoing) {
         float now = float(SDL_GetTicks()) / 1000.0f;
         float dt = now - timePrev;
         timePrev = now;
 
         SDL_Event event;
+        events.clear();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
                 keepGoing = false;
@@ -79,19 +106,18 @@ int main(int argc, char** argv) {
                     }
                 }
             }
+            events.push_back(event);
         }
+            
         SDL_RenderClear(renderer);
-        //bg.Render(renderer, WINDOW_WIDTH);
-        menu.Update(dt, WINDOW_WIDTH, bg, renderer, exit, start);
         
-        //gameTime = now - timeStart;
-        /*
-        game.Update(dt, ship, shoots, level_2, up, right, left, down, isUp,
-            isRight, isLeft, isDown, gameTime, shootCooldown, canShoot);
-        game.Collisions(renderer, shoots, level_2->ennemies, ship, gameTime, score,
-            isGameOver, isWin);
-        game.GameRenderer(renderer, ship, shoots, *level_2);
-        */
+        gameTime = now - timeStart;
+        BlockSpawn(blocks, blockTexture, cooldownSpawn, gameTime);
+        game.Update(dt, gameTime, ch, events, blocks);
+        menu.Update(dt, WINDOW_WIDTH, gameStart, bg, renderer, exit, start);
+        //game.Collisions(renderer, gameTime);
+        game.GameRenderer(gameStart, renderer, ch, blocks);
+        
 
         SDL_RenderPresent(renderer);
     }
@@ -100,9 +126,10 @@ int main(int argc, char** argv) {
     SDL_DestroyWindow(window);
     delete start; start = nullptr;
     delete exit; exit = nullptr;
+    delete bg; bg = nullptr;
+    delete ch; ch = nullptr;
     for (int i = 0; i < blocks.size(); i++) {
-        delete blocks[i]; 
-        blocks[i] = nullptr;
+        delete blocks[i]; blocks[i] = nullptr;
     }
     blocks.clear();
     SDL_Quit();
