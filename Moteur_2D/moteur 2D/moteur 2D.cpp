@@ -57,14 +57,20 @@ int main(int argc, char** argv) {
     float gameTime = 0;
     float timePrev = 0;
     float timeStart = 0;
+    std::vector<SDL_Event> events;
+    
     while (keepGoing) {
         float now = float(SDL_GetTicks()) / 1000.0f;
         float dt = now - timePrev;
         timePrev = now;
         SDL_Event event;
+        events.clear();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
                 keepGoing = false;
+            events.push_back(event);
+        }
+        ch.Update(dt, events);
             if (event.type == SDL_EVENT_KEY_DOWN) {
                 if (event.key.key == SDLK_Z) {
                     isJump = true;

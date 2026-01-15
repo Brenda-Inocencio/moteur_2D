@@ -1,7 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="moteur 2D/moteur 2D.vcxproj" Id="47ca993d-ea30-4f3a-8e1a-84847272b536" />
-</Solution>
