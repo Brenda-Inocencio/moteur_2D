@@ -3,7 +3,7 @@
 #include <vector>
 struct SDL_Texture;
 struct SDL_Renderer;
-struct SDL_Event;
+union SDL_Event;
 
 class Character {
 	float pos_x;

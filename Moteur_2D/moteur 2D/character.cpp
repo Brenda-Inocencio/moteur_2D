@@ -3,6 +3,9 @@
 #include <SDL3_image/SDL_image.h>
 
 Character::Character(SDL_Renderer* _renderer) {
+	pos_x = 692;
+	pos_y = 610;
+	speed = 0;
 	state = CHSTATE_STATIC;
 	texture = IMG_LoadTexture(_renderer, "character_grabing_object.png");
 	if (!texture) {
@@ -18,7 +21,7 @@ Character::~Character() {
 
 void Character::Render(SDL_Renderer* _renderer) {
 	if (texture) {
-		SDL_FRect rect = {692, 610, 100, 145};
+		SDL_FRect rect = {pos_x, pos_y, 100, 145};
 		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }
@@ -54,7 +57,7 @@ void Character::Update(float dt, std::vector<SDL_Event> &events) {
 			} 
 			break;
 		case CHSTATE_WALKING:
-			if ((speed < 0 && !event->key.key == SDLK_Q) || (speed > 0 && !event->key.key == SDLK_D)) {
+			if ((speed < 0 && event->key.key != SDLK_Q) || (speed > 0 && event->key.key != SDLK_D)) {
 				speed = 0;
 				newState = CHSTATE_STATIC;
 			}
@@ -75,5 +78,3 @@ void Character::Update(float dt, std::vector<SDL_Event> &events) {
 		state = newState;
 	}
 }
-
-// TODO: finir les deplacements et la table d etat (enum et switch)

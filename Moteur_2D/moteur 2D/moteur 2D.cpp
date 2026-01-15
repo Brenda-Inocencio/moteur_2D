@@ -48,11 +48,6 @@ int main(int argc, char** argv) {
     bool gameStart = false;
     bool isPaused = false;
     bool keepGoing = true;
-    bool isLeft = false;
-    bool isRight = false;
-    bool isJump = false;
-    bool isGrab = false;
-    bool isSwapGrid = false;
     float cooldown = 0;
     float gameTime = 0;
     float timePrev = 0;
@@ -71,86 +66,13 @@ int main(int argc, char** argv) {
             events.push_back(event);
         }
         ch.Update(dt, events);
-            if (event.type == SDL_EVENT_KEY_DOWN) {
-                if (event.key.key == SDLK_Z) {
-                    isJump = true;
-                }
-                if (event.key.key == SDLK_Q) {
-                    isLeft = true;
-                }
-                if (event.key.key == SDLK_D) {
-                    isRight = true;
-                }
-                if (event.key.key == SDLK_S) {
-                    isGrab = !isGrab;
-                }
-                if (event.key.key == SDLK_SPACE) {
-                    isSwapGrid = true;
-                }
-            }
-            if (event.type == SDL_EVENT_KEY_UP) {
-                if (event.key.key == SDLK_Z) {
-                    isJump = false;
-                }
-                if (event.key.key == SDLK_Q) {
-                    isLeft = false;
-                }
-                if (event.key.key == SDLK_D) {
-                    isRight = false;
-                }
-                if (event.key.key == SDLK_SPACE) {
-                    isSwapGrid = false;
-                }
-            }
-        }
         SDL_RenderClear(renderer);
-        bg.Render(renderer);
+        bg.Render(renderer, WINDOW_WIDTH);
         ch.Render(renderer);
         bl->Render(renderer);
         /*for (int i = 0; i < blocks.size(); i++) {
             blocks[i]->Render(renderer);
         }*/
-        /*if (isWin) {
-        bg.Render(renderer);
-            if (isLvl1) {
-                menu.MenuNextLevelRenderer(renderer, win, play);
-            }
-            else {
-                menu.MenuWinRenderer(renderer, win, exit);
-            }
-            score->Render(renderer);
-        }
-        else if (isGameOver) {
-        bg.Render(renderer);
-            menu.MenuGameOverRenderer(renderer, gameOver);
-            score->Render(renderer);
-            gameStart = false;
-        }
-        else if (isPaused) {
-        bg.Render(renderer);+54
-            menu.MenuPauseRenderer(renderer, pause, play);
-        }
-        else if (gameStart) {
-            gameTime = now - timeStart;
-            if (isLvl1) {
-                game.Update(dt, ship, shoots, level_1, up, right, left, down, isUp,
-                    isRight, isLeft, isDown, gameTime, shootCooldown, canShoot);
-                game.Collisions(renderer, shoots, level_1->ennemies, ship, gameTime, score,
-                    isGameOver, isWin);
-                game.GameRenderer(renderer, ship, shoots, *level_1);
-            }
-            else {
-                game.Update(dt, ship, shoots, level_2, up, right, left, down, isUp,
-                    isRight, isLeft, isDown, gameTime, shootCooldown, canShoot);
-                game.Collisions(renderer, shoots, level_2->ennemies, ship, gameTime, score,
-                    isGameOver, isWin);
-                game.GameRenderer(renderer, ship, shoots, *level_2);
-            }
-        }
-        else {
-            menu.MenuRenderer(renderer, exit, start);
-        }*/
-
         SDL_RenderPresent(renderer);
     }
 
