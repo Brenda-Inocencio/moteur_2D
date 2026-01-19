@@ -7,7 +7,7 @@ Menu::Menu() {
     state = CHSTATE_MENU;
 }
 
-void Menu::Update(float dt, int winWidth, bool gameStart, Background* bg, SDL_Renderer* renderer, Button* exit, Button* start) {
+void Menu::Update(float dt, int winWidth, bool gameStart, bool isGameOver, Background* bg, SDL_Renderer* renderer, Button* exit, Button* start) {
     State newState = state;
     switch (state) {
     case CHSTATE_MENU:
@@ -18,10 +18,12 @@ void Menu::Update(float dt, int winWidth, bool gameStart, Background* bg, SDL_Re
         break;
     case CHSTATE_START:
         bg->Render(renderer, winWidth);
+        if (isGameOver)
         break;
     case CHSTATE_PAUSE:
     case CHSTATE_WIN:
     case CHSTATE_GAME_OVER:
+
         break;
     }
     

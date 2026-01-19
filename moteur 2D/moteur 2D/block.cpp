@@ -5,6 +5,7 @@
 //hauteur = 38 
 //largeur = 51.5
 Block::Block(SDL_Texture* _texture) {
+	collision = false;
 	cooldown = 0;
 	pos_x = GetRandomNumber(0, 9);
 	pos_y = 642 - (38 * 16);
@@ -33,7 +34,10 @@ int Block::GetRandomNumber(int min, int max) {
 }
 
 void Block::Update(float now) {
-	if (now - cooldown >= 2) {
+	if (pos_y >= 642) {
+		collision = true;
+	}
+	else if (now - cooldown >= 0.5 && !collision) {
 		pos_y += 38;
 		cooldown = now;
 	}

@@ -12,16 +12,10 @@
 #include "start.h"
 
 #define WORLD_WIDTH 10
-#define WORLD_HEIGHT 50
+#define WORLD_HEIGHT 100
 #define WINDOW_WIDTH 1024 
 #define WINDOW_HEIGHT 768
 
-void BlockSpawn(std::vector<Block*>& blocks, SDL_Texture* blockTexture, float cooldownSpawn, float gameTime) {
-    if (gameTime - cooldownSpawn >= 3) {
-        blocks.push_back(new Block(blockTexture));
-        cooldownSpawn = gameTime;
-    }
-}
 
 int main(int argc, char** argv) {
     SDL_Window* window;
@@ -48,13 +42,11 @@ int main(int argc, char** argv) {
 
     Game game;
     Background* bg = new Background(renderer);
-
     Character* ch = new Character(renderer);
     SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
     if (!blockTexture) {
         SDL_Log("Erreur de chargement %s", SDL_GetError());
     }
-    Block* bl = new Block(blockTexture);
     std::vector<Block*> blocks;
 
     Button* exit = new Exit(renderer);
@@ -62,12 +54,13 @@ int main(int argc, char** argv) {
     Menu menu;
     std::vector<SDL_Event> events;
 
-    bool isGameOver = false;
     bool isWin = false;
     bool isPaused = false;
 
     bool gameStart = false;
+    bool isGameOver = false;
     bool keepGoing = true;
+    bool canSpawn = true;
 
     float gameTime = 0;
     float timePrev = 0;
@@ -110,15 +103,19 @@ int main(int argc, char** argv) {
         }
             
         SDL_RenderClear(renderer);
-        
-        gameTime = now - timeStart;
-        BlockSpawn(blocks, blockTexture, cooldownSpawn, gameTime);
-        game.Update(dt, gameTime, ch, events, blocks);
-        menu.Update(dt, WINDOW_WIDTH, gameStart, bg, renderer, exit, start);
-        //game.Collisions(renderer, gameTime);
-        game.GameRenderer(gameStart, renderer, ch, blocks);
-        
 
+        menu.Update(dt, WINDOW_WIDTH, gameStart, isGameOver, bg, renderer, exit, start);
+        if (gameStart) {
+            gameTime = now - timeStart;
+            if (gameTime - cooldownSpawn >= 1){
+                blocks.push_back(new Block(blockTexture));
+                cooldownSpawn = gameTime;
+            }
+            game.Update(dt, gameTime, ch, events, blocks);
+            game.Collisions(gameTime, isGameOver, renderer, blocks);
+            game.GameRenderer(gameStart, renderer, ch, blocks);
+        }
+        
         SDL_RenderPresent(renderer);
     }
 

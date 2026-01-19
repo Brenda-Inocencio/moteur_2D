@@ -20,6 +20,6 @@ class Menu {
 	} state;
 public:
 	Menu();
-	void Update(float dt, int winWidth, bool gameStart, Background* bg, SDL_Renderer* renderer, Button* exit, Button* start);
+	void Update(float dt, int winWidth, bool gameStart, bool isGameOver, Background* bg, SDL_Renderer* renderer, Button* exit, Button* start);
 	void MenuRenderer(SDL_Renderer* renderer, Button* exit, Button* start);
 };
