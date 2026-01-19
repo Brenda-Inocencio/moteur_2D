@@ -21,7 +21,7 @@ void Game::Collisions(float now, bool& isGameOver, SDL_Renderer* renderer, std::
         }
 
         if (cx == bl->GetRightX() || ch.GetRightX()  == bx) {
-            ch.collision = true; // TODO: bloquer le deplacement sur le coter
+            ch.isGround = true; // TODO: bloquer le deplacement sur le coter
         }
 
         if (bl->collision && bl->GetPosY() == ch.GetBottomY()) {
@@ -52,7 +52,7 @@ void Game::GameRenderer(bool gameStart, SDL_Renderer* renderer, Character& ch, s
 }
 
 void Game::Update(float dt, float gameTime, Character& ch, std::vector<SDL_Event> events, std::vector<Block*>& blocks) {
-    ch.Update(dt, events);
+    ch.Update(dt, events, gameTime);
     for (Block* bl : blocks) {
         bl->Update(gameTime);
     }
