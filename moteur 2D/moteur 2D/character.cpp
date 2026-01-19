@@ -5,8 +5,11 @@ Character::Character(SDL_Renderer* _renderer) {
 	pos_x = 692;
 	pos_y = 610;
 	state = CHSTATE_STATIC;
+	width = 100;
+	height = 145;
 	speed = 0;
-	texture = IMG_LoadTexture(_renderer, "character_grabing_object.png");
+	collision = false;
+	texture = IMG_LoadTexture(_renderer, "character_static.png");
 	if (!texture) {
 		SDL_Log("L'image elle a pas trop marché: %s", SDL_GetError());
 	}
@@ -20,7 +23,7 @@ Character::~Character() {
 
 void Character::Render(SDL_Renderer* _renderer) {
 	if (texture) {
-		SDL_FRect rect = {pos_x, pos_y, 100, 145};
+		SDL_FRect rect = {pos_x, pos_y, width, height};
 		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }
@@ -28,26 +31,23 @@ void Character::Render(SDL_Renderer* _renderer) {
 void Character::Update(float dt, std::vector<SDL_Event>& events) {
 	State newState = state;
 
-	for (auto event = events.begin(); event != events.end(); event++)
+	for (auto& event : events)
 	{
 		switch (state) {
 		case CHSTATE_STATIC:
-			if (event->type == SDL_EVENT_KEY_DOWN) {
-				if (event->key.key == SDLK_D) {
+			if (event.type == SDL_EVENT_KEY_DOWN) {
+				if (event.key.key == SDLK_D) {
 					newState = CHSTATE_WALKING;
-					pos_x += 40 * dt;
-					speed = 1;
+					speed = 40;
 				}
-				else if (event->key.key == SDLK_Q) {
+				else if (event.key.key == SDLK_Q) {
 					newState = CHSTATE_WALKING;
-					pos_x -= 40 * dt;
-					speed = -1;
+					speed = -40;
 				}
-				else if (event->key.key == SDLK_Z) {
+				else if (event.key.key == SDLK_Z) {
 					newState = CHSTATE_JUMPING;
-					pos_y -= 40 * dt;
 				}
-				/*else if (event->key.key == SDLK_S) {
+				/*else if (event.key.key == SDLK_S) {
 					newState = CHSTATE_CARRYING;
 				}*/
 				/*else if () {
@@ -56,16 +56,18 @@ void Character::Update(float dt, std::vector<SDL_Event>& events) {
 			}
 			break;
 		case CHSTATE_WALKING:
-			if ((speed < 0 && event->key.key != SDLK_Q) || (speed > 0 && event->key.key != SDLK_D)) {
-				speed = 0;
-				newState = CHSTATE_STATIC;
-			}
-			else if (event->key.key == SDLK_Z) {
-				newState = CHSTATE_JUMPING;
-				pos_y -= 40 * dt;
+			if (event.type == SDL_EVENT_KEY_UP) {
+				if ((speed < 0 && event.key.key == SDLK_Q) || (speed > 0 && event.key.key == SDLK_D)) {
+					speed = 0;
+					newState = CHSTATE_STATIC;
+				}
+				else if (event.key.key == SDLK_Z) {
+					newState = CHSTATE_JUMPING;
+				}
 			}
 			break;
 		case CHSTATE_JUMPING:
+			newState = CHSTATE_STATIC;
 			break;
 		case CHSTATE_FALLING:
 			break;
@@ -73,9 +75,12 @@ void Character::Update(float dt, std::vector<SDL_Event>& events) {
 			break;
 		}
 	}
+	// Character update input independent
+	if (state == CHSTATE_WALKING)
+		pos_x += dt * speed;
+
 	if (state != newState) {
 		state = newState;
 	}
 }
-
 // TODO: finir les deplacements et la table d etat (enum et switch)

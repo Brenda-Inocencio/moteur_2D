@@ -145,6 +145,7 @@
     <ClCompile Include="character.cpp" />
     <ClCompile Include="exit.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="gameover.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="moteur 2D.cpp" />
     <ClCompile Include="start.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="character.h" />
     <ClInclude Include="exit.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="gameover.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="start.h" />
   </ItemGroup>

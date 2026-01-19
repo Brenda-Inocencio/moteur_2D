@@ -10,6 +10,7 @@
 #include "button.h"
 #include "exit.h"
 #include "start.h"
+#include "gameover.h"
 
 #define WORLD_WIDTH 10
 #define WORLD_HEIGHT 100
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
 
     Game game;
     Background* bg = new Background(renderer);
-    Character* ch = new Character(renderer);
+    Character ch(renderer);
     SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
     if (!blockTexture) {
         SDL_Log("Erreur de chargement %s", SDL_GetError());
@@ -51,6 +52,7 @@ int main(int argc, char** argv) {
 
     Button* exit = new Exit(renderer);
     Button* start = new Start(renderer);
+    Button* gameOver = new GameOver(renderer);
     Menu menu;
     std::vector<SDL_Event> events;
 
@@ -79,6 +81,16 @@ int main(int argc, char** argv) {
             else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 float mx = event.button.x;
                 float my = event.button.y;
+                if (isGameOver) {
+                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
+                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
+                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
+                            exit->Press(renderer);
+                            SDL_RenderPresent(renderer);
+                            keepGoing = false;
+                        }
+                    }
+                }
                 if (!gameStart) {
                     if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
                         my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
@@ -104,7 +116,7 @@ int main(int argc, char** argv) {
             
         SDL_RenderClear(renderer);
 
-        menu.Update(dt, WINDOW_WIDTH, gameStart, isGameOver, bg, renderer, exit, start);
+        menu.Update(dt, WINDOW_WIDTH, gameStart, isGameOver, bg, renderer, exit, start, gameOver);
         if (gameStart) {
             gameTime = now - timeStart;
             if (gameTime - cooldownSpawn >= 1){
@@ -112,7 +124,7 @@ int main(int argc, char** argv) {
                 cooldownSpawn = gameTime;
             }
             game.Update(dt, gameTime, ch, events, blocks);
-            game.Collisions(gameTime, isGameOver, renderer, blocks);
+            game.Collisions(gameTime, isGameOver, renderer, blocks, ch, keepGoing);
             game.GameRenderer(gameStart, renderer, ch, blocks);
         }
         
@@ -123,8 +135,8 @@ int main(int argc, char** argv) {
     SDL_DestroyWindow(window);
     delete start; start = nullptr;
     delete exit; exit = nullptr;
+    delete gameOver; gameOver = nullptr;
     delete bg; bg = nullptr;
-    delete ch; ch = nullptr;
     for (int i = 0; i < blocks.size(); i++) {
         delete blocks[i]; blocks[i] = nullptr;
     }

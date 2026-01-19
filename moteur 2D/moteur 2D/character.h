@@ -7,9 +7,11 @@ struct SDL_Renderer;
 union SDL_EVENT;
 
 class Character {
+	int speed;
+	int width;
+	int height;
 	float pos_x;
 	float pos_y;
-	int speed;
 	enum State {
 		CHSTATE_STATIC,
 		CHSTATE_WALKING,
@@ -18,6 +20,11 @@ class Character {
 		CHSTATE_CARRYING
 	} state;
 public:
+	inline float GetPosX() const { return pos_x; }
+	inline float GetPosY() const { return pos_y; }
+	inline float GetRightX() const { return pos_x + width; }
+	inline float GetBottomY() const { return pos_y + height; }
+	bool collision;
 	SDL_Texture* texture;
 	~Character();
 	Character(SDL_Renderer* _renderer);
