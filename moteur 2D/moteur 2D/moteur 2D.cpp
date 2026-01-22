@@ -16,11 +16,44 @@
 #define WORLD_HEIGHT 100
 #define WINDOW_WIDTH 1024 
 #define WINDOW_HEIGHT 768
+#define CHARACTER_MAX_IMAGE 7
 
+const char* characterImage[CHARACTER_MAX_IMAGE]{
+     "character_static.png",
+     "character_walking_left.png",
+     "character_walking_right.png",
+     "character_jumping_left.png",
+     "character_jumping_right.png",
+     "character_falling_left.png",
+     "character_falling_right.png"
+};
 
 int main(int argc, char** argv) {
     SDL_Window* window;
     SDL_Renderer* renderer;
+
+    Game game;
+    Background* bg = new Background(renderer);
+    Character ch(renderer);
+    SDL_Texture* characterTextures[CHARACTER_MAX_IMAGE] = {nullptr};
+    SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
+    std::vector<Block*> blocks;
+
+    Button* exit = new Exit(renderer);
+    Button* start = new Start(renderer);
+    Button* gameOver = new GameOver(renderer);
+    Menu menu;
+
+    std::vector<SDL_Event> events;
+
+    bool gameStart = false;
+    bool isGameOver = false;
+    bool keepGoing = true;
+
+    float gameTime = 0;
+    float timePrev = 0;
+    float timeStart = 0;
+    float cooldownSpawn = 0;
 
     SDL_SetAppMetadata("SDL Test", "1.0", "com.platformer.test-sdl");
     if (!SDL_Init(SDL_INIT_VIDEO))
@@ -41,33 +74,16 @@ int main(int argc, char** argv) {
     SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT,
         SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
-    Game game;
-    Background* bg = new Background(renderer);
-    Character ch(renderer);
-    SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
+    for (int i = 0;  i < CHARACTER_MAX_IMAGE;  i++) {
+        characterTextures[i] = IMG_LoadTexture(renderer, characterImage[i]);
+        if (!characterTextures[i]) {
+            SDL_Log("Character image loading fail : %s", SDL_GetError());
+        }
+    }
     if (!blockTexture) {
         SDL_Log("Erreur de chargement %s", SDL_GetError());
     }
-    std::vector<Block*> blocks;
 
-    Button* exit = new Exit(renderer);
-    Button* start = new Start(renderer);
-    Button* gameOver = new GameOver(renderer);
-    Menu menu;
-    std::vector<SDL_Event> events;
-
-    bool isWin = false;
-    bool isPaused = false;
-
-    bool gameStart = false;
-    bool isGameOver = false;
-    bool keepGoing = true;
-    bool canSpawn = true;
-
-    float gameTime = 0;
-    float timePrev = 0;
-    float timeStart = 0;
-    float cooldownSpawn = 0;
     while (keepGoing) {
         float now = float(SDL_GetTicks()) / 1000.0f;
         float dt = now - timePrev;
@@ -125,7 +141,7 @@ int main(int argc, char** argv) {
             }
             game.Update(dt, gameTime, ch, events, blocks);
             game.Collisions(gameTime, isGameOver, renderer, blocks, ch);
-            game.GameRenderer(gameStart, renderer, ch, blocks);
+            game.GameRenderer(gameStart, renderer, ch, blocks, characterTextures);
         }
         
         SDL_RenderPresent(renderer);

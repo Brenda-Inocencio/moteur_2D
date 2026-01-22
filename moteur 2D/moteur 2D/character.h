@@ -30,11 +30,9 @@ public:
 	inline float GetBottomY() const { return pos_y + height; }
 	SDL_Texture* texture;
 	~Character();
-	Character(SDL_Renderer* _renderer);
-	void Render(SDL_Renderer* _renderer);
+	Character();
+	void Render(SDL_Renderer* _renderer, SDL_Texture* chTexture);
 	void Update(float dt, std::vector<SDL_Event>& events, float now, std::vector<Block*> blocks);
-	void CollideBlockLeft(std::vector<Block*> blocks);
-	void CollideBlockRight(std::vector<Block*> blocks);
 	void CollideBlock(std::vector<Block*> blocks);
 	bool isGround(std::vector<Block*> blocks);
 };

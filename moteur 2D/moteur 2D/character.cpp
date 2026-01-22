@@ -1,10 +1,9 @@
 #include "character.h"
 #include "block.h"
 #include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 #include <iostream>
 
-Character::Character(SDL_Renderer* _renderer) {
+Character::Character() {
 	pos_x = 692;
 	pos_y = 610;
 	state = CHSTATE_STATIC;
@@ -12,22 +11,15 @@ Character::Character(SDL_Renderer* _renderer) {
 	height = 70;
 	speed = 0;
 	jumpingTime = 0;
-	texture = IMG_LoadTexture(_renderer, "character_static.png");
-	if (!texture) {
-		SDL_Log("L'image elle a pas trop marché: %s", SDL_GetError());
-	}
 }
 
 Character::~Character() {
-	if (texture) {
-		SDL_DestroyTexture(texture);
-	}
 }
 
-void Character::Render(SDL_Renderer* _renderer) {
-	if (texture) {
+void Character::Render(SDL_Renderer* _renderer, SDL_Texture* chTexture) {
+	if (chTexture) {
 		SDL_FRect rect = {pos_x, pos_y, 100, 145};
-		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
+		SDL_RenderTexture(_renderer, chTexture, nullptr, &rect);
 	}
 }
 
@@ -122,33 +114,9 @@ void Character::Update(float dt, std::vector<SDL_Event>& events, float now, std:
 	else if (speed != 0) {
 		CollideBlock(blocks);
 	}
-/*	else if (speed > 0) {
-		CollideBlockRight(blocks); // enumère les blocks, réajuste la position en cas de collision
-	}
-	else if(speed<0) {
-		CollideBlockLeft(blocks);
-	}*/
-	
 	if (state != newState) {
 		state = newState;
 		std::cout << "state : " << newState << std::endl;
-	}
-}
-void Character::CollideBlockLeft(std::vector<Block*> blocks) {
-	for (auto* bl : blocks) {
-		if (pos_x <= bl->GetRightX() && pos_x >= bl->GetPosX() &&
-			bl->GetPosY() >= pos_y && bl->GetBottomY() <= pos_y + height) {
-			pos_x = bl->GetRightX();
-		}
-	}
-}
-
-void Character::CollideBlockRight(std::vector<Block*> blocks) {
-	for (auto* bl : blocks) {
-		if (pos_x + 100 >= bl->GetPosX() && pos_x + 100 >= bl->GetRightX() &&
-			bl->GetPosY() >= pos_y && bl->GetBottomY() <= pos_y + height) {
-			pos_x = bl->GetPosX() - width;
-		}
 	}
 }
 
@@ -171,9 +139,9 @@ void Character::CollideBlock(std::vector<Block*> blocks) {
 
 bool Character::isGround(std::vector<Block*> blocks) {
 	for (auto* bl : blocks) {
-		if (bl->collision && bl->GetPosY() <= pos_y + height && 
+		if ((bl->collision && bl->GetPosY() <= pos_y + height) &&
 			((pos_x >= bl->GetPosX() && pos_x <= bl->GetRightX()) ||
-				(pos_x + width <= bl->GetRightX() && pos_x + width >= bl->GetPosX()))) {
+			(pos_x + width <= bl->GetRightX() && pos_x + width >= bl->GetPosX()))) {
 			pos_y = bl->GetPosY() - height;
 			return true;
 		}
