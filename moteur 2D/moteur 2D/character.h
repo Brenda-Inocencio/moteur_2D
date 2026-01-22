@@ -5,12 +5,13 @@
 struct SDL_Texture;
 struct SDL_Renderer;
 union SDL_Event;
+class Block;
 
 class Character {
 	float pos_x;
 	float pos_y;
-	int height;
-	int width;
+	float height;
+	float width;
 	int speed;
 	float jumpingTime;
 	enum State {
@@ -27,10 +28,13 @@ public:
 	inline float GetPosY() const { return pos_y; }
 	inline float GetRightX() const { return pos_x + width; }
 	inline float GetBottomY() const { return pos_y + height; }
-	bool isGround;
 	SDL_Texture* texture;
 	~Character();
 	Character(SDL_Renderer* _renderer);
 	void Render(SDL_Renderer* _renderer);
-	void Update(float dt, std::vector<SDL_Event>& events, float now);
+	void Update(float dt, std::vector<SDL_Event>& events, float now, std::vector<Block*> blocks);
+	void CollideBlockLeft(std::vector<Block*> blocks);
+	void CollideBlockRight(std::vector<Block*> blocks);
+	void CollideBlock(std::vector<Block*> blocks);
+	bool isGround(std::vector<Block*> blocks);
 };

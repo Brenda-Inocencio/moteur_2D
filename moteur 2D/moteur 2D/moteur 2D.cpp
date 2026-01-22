@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
                 cooldownSpawn = gameTime;
             }
             game.Update(dt, gameTime, ch, events, blocks);
-            game.Collisions(gameTime, isGameOver, renderer, blocks, ch, keepGoing);
+            game.Collisions(gameTime, isGameOver, renderer, blocks, ch);
             game.GameRenderer(gameStart, renderer, ch, blocks);
         }
         

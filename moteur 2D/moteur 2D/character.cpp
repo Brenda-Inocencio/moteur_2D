@@ -1,4 +1,5 @@
 #include "character.h"
+#include "block.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
@@ -7,11 +8,10 @@ Character::Character(SDL_Renderer* _renderer) {
 	pos_x = 692;
 	pos_y = 610;
 	state = CHSTATE_STATIC;
-	width = 100;
-	height = 145;
+	width = 50;
+	height = 70;
 	speed = 0;
 	jumpingTime = 0;
-	isGround = false;
 	texture = IMG_LoadTexture(_renderer, "character_static.png");
 	if (!texture) {
 		SDL_Log("L'image elle a pas trop marché: %s", SDL_GetError());
@@ -26,7 +26,7 @@ Character::~Character() {
 
 void Character::Render(SDL_Renderer* _renderer) {
 	if (texture) {
-		SDL_FRect rect = {pos_x, pos_y, width, height};
+		SDL_FRect rect = {pos_x, pos_y, 100, 145};
 		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }
@@ -61,7 +61,8 @@ Character::State Character::processEvents(std::vector<SDL_Event>& events, float 
 			break;
 		case CHSTATE_WALKING:
 			if (event.type == SDL_EVENT_KEY_UP) {
-				if ((speed < 0 && event.key.key == SDLK_Q) || (speed > 0 && event.key.key == SDLK_D)) {
+				if ((speed < 0 && event.key.key == SDLK_Q) || 
+					(speed > 0 && event.key.key == SDLK_D)) {
 					speed = 0;
 					newState = CHSTATE_STATIC;
 				}
@@ -82,7 +83,7 @@ Character::State Character::processEvents(std::vector<SDL_Event>& events, float 
 	return newState;
 }
 
-void Character::Update(float dt, std::vector<SDL_Event>& events, float now) {
+void Character::Update(float dt, std::vector<SDL_Event>& events, float now, std::vector<Block*> blocks) {
 	State newState = processEvents(events, now);
 
 	switch (state) {
@@ -92,15 +93,17 @@ void Character::Update(float dt, std::vector<SDL_Event>& events, float now) {
 		break;
 	case CHSTATE_JUMPING:
 		pos_y -= 400 * dt;
-		isGround = false;
-		if (now - jumpingTime >= 0.25f) {
+		if (now - jumpingTime >= 0.3f) {
 			newState = CHSTATE_FALLING;
 			jumpingTime = now;
 		}
 		break;
 	case CHSTATE_FALLING:
-		if (pos_y >= 610 || isGround)
-		{
+		pos_y += 200 * dt;
+		if (pos_y >= 610) {
+			pos_y = 610;
+		}
+		if (pos_y == 610 || isGround(blocks)) {
 			newState = CHSTATE_STATIC;
 			speed = 0;
 		}
@@ -113,18 +116,67 @@ void Character::Update(float dt, std::vector<SDL_Event>& events, float now) {
 	if (pos_x <= 225) {
 		pos_x = 225;
 	}
-	if (pos_x >= 698) {
+	else if (pos_x >= 698) {
 		pos_x = 698;
 	}
-	if (state != CHSTATE_JUMPING)
-	{
-		pos_y += 200 * dt;
-		if (pos_y >= 610) {
-			pos_y = 610;
-		}
+	else if (speed != 0) {
+		CollideBlock(blocks);
 	}
+/*	else if (speed > 0) {
+		CollideBlockRight(blocks); // enumère les blocks, réajuste la position en cas de collision
+	}
+	else if(speed<0) {
+		CollideBlockLeft(blocks);
+	}*/
+	
 	if (state != newState) {
 		state = newState;
 		std::cout << "state : " << newState << std::endl;
 	}
+}
+void Character::CollideBlockLeft(std::vector<Block*> blocks) {
+	for (auto* bl : blocks) {
+		if (pos_x <= bl->GetRightX() && pos_x >= bl->GetPosX() &&
+			bl->GetPosY() >= pos_y && bl->GetBottomY() <= pos_y + height) {
+			pos_x = bl->GetRightX();
+		}
+	}
+}
+
+void Character::CollideBlockRight(std::vector<Block*> blocks) {
+	for (auto* bl : blocks) {
+		if (pos_x + 100 >= bl->GetPosX() && pos_x + 100 >= bl->GetRightX() &&
+			bl->GetPosY() >= pos_y && bl->GetBottomY() <= pos_y + height) {
+			pos_x = bl->GetPosX() - width;
+		}
+	}
+}
+
+void Character::CollideBlock(std::vector<Block*> blocks) {
+	for (auto* bl : blocks) {
+		if (speed > 0) {
+			if (pos_x + width >= bl->GetPosX() && pos_x + width <= bl->GetRightX() &&
+				bl->GetPosY() >= pos_y && bl->GetBottomY() <= pos_y + height) {
+				pos_x = bl->GetPosX() - width;
+			}
+		}
+		else if (speed < 0) {
+			if (pos_x <= bl->GetRightX() && pos_x >= bl->GetPosX() &&
+				bl->GetPosY() >= pos_y && bl->GetBottomY() <= pos_y + height) {
+				pos_x = bl->GetRightX() + 5;
+			}
+		}
+	}
+}
+
+bool Character::isGround(std::vector<Block*> blocks) {
+	for (auto* bl : blocks) {
+		if (bl->collision && bl->GetPosY() <= pos_y + height && 
+			((pos_x >= bl->GetPosX() && pos_x <= bl->GetRightX()) ||
+				(pos_x + width <= bl->GetRightX() && pos_x + width >= bl->GetPosX()))) {
+			pos_y = bl->GetPosY() - height;
+			return true;
+		}
+	}
+	return false;
 }
