@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         SDL_Log("Impossible d'activer le VSync : %s", SDL_GetError());
     }
 
-    if (TTF_Init() < 0) {
+    if (!TTF_Init()) {
         SDL_Log("Erreur TTF_Init: %s", SDL_GetError());
     }
 
@@ -125,17 +125,18 @@ int main(int argc, char** argv) {
         }
             
         SDL_RenderClear(renderer);
-
-        menu.Update(dt, WINDOW_WIDTH, gameStart, isGameOver, bg, renderer, exit, start, gameOver);
         if (gameStart) {
             gameTime = now - timeStart;
             if (gameTime - cooldownSpawn >= 1){
                 blocks.push_back(new Block(blockTexture));
                 cooldownSpawn = gameTime;
             }
-            game.Update(dt, gameTime, ch, events, blocks);
+            game.Update(dt, gameTime, gameStart, isGameOver, ch, events, blocks, menu);
             game.Collisions(gameTime, isGameOver, renderer, blocks, ch);
-            game.GameRenderer(gameStart, renderer, ch, blocks);
+            game.GameRenderer(gameStart, WINDOW_WIDTH, renderer, ch, blocks, bg, menu, exit, start, gameOver);
+        }
+        else {
+            menu.Render(renderer, exit, start, gameOver, bg, WINDOW_WIDTH);
         }
         
         SDL_RenderPresent(renderer);

@@ -18,8 +18,9 @@ class Menu {
 	} state;
 public:
 	Menu();
-	void Update(float dt, int winWidth, bool& gameStart, bool isGameOver, Background& bg, 
-		SDL_Renderer* renderer, Button* exit, Button* start, Button* gameOver);
-	void MenuRenderer(SDL_Renderer* renderer, Button* exit, Button* start);
-	void MenuGameOverRenderer(SDL_Renderer* renderer, Button* gameOver);
+	void Update(float dt, bool& gameStart, bool isGameOver); //TODO: make render version 
+	void Render(SDL_Renderer* renderer, Button* exit, Button* start, Button* gameOver, Background& bg, int winWidth);
+	void MenuRenderer(SDL_Renderer* renderer, Button* exit, Button* start); // Render the start menu
+	void MenuGameOverRenderer(SDL_Renderer* renderer, Button* gameOver); //Render the game over screen
+	void SetGameOver(); //Change state to game over
 };
