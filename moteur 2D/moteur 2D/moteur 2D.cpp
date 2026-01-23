@@ -16,6 +16,7 @@
 #define WORLD_HEIGHT 100
 #define WINDOW_WIDTH 1024 
 #define WINDOW_HEIGHT 768
+#define GRID_MAX_IMAGE 2
 #define CHARACTER_MAX_IMAGE 7
 
 const char* characterImage[CHARACTER_MAX_IMAGE] {
@@ -26,6 +27,11 @@ const char* characterImage[CHARACTER_MAX_IMAGE] {
      "character_jumping_right.png",
      "character_falling_left.png",
      "character_falling_right.png"
+};
+
+const char* GridImage[GRID_MAX_IMAGE]{
+     "grid.png",
+     "grid_for_scrolling.png"
 };
 
 int main(int argc, char** argv) {
@@ -52,11 +58,16 @@ int main(int argc, char** argv) {
         SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     Game game;
-    Background bg(renderer);
     std::vector<SDL_Texture*> characterTextures = {nullptr};
     SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
     std::vector<Block*> blocks;
-   
+    std::vector<SDL_Texture*> gridTextures = {nullptr};
+
+    for (int i = 0; i < GRID_MAX_IMAGE; i++) {
+        gridTextures.push_back(IMG_LoadTexture(renderer, GridImage[i]));
+    }
+    Background bg(gridTextures);
+
     for (int i = 0; i < CHARACTER_MAX_IMAGE; i++) {
         characterTextures.push_back(IMG_LoadTexture(renderer, characterImage[i]));
     }
@@ -70,7 +81,6 @@ int main(int argc, char** argv) {
     std::vector<SDL_Event> events;
 
     bool gameStart = false;
-    bool isGameOver = false;
     bool keepGoing = true;
 
     float gameTime = 0;
@@ -91,16 +101,6 @@ int main(int argc, char** argv) {
             else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 float mx = event.button.x;
                 float my = event.button.y;
-                if (isGameOver) {
-                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
-                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
-                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
-                            exit->Press(renderer);
-                            SDL_RenderPresent(renderer);
-                            keepGoing = false;
-                        }
-                    }
-                }
                 if (!gameStart) {
                     if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
                         my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
@@ -120,6 +120,16 @@ int main(int argc, char** argv) {
                         }
                     }
                 }
+                else {
+                    if (mx >= exit->buttonRect.x && mx <= exit->buttonRect.x + exit->buttonRect.w &&
+                        my >= exit->buttonRect.y && my <= exit->buttonRect.y + exit->buttonRect.h) {
+                        if (event.type != SDL_EVENT_MOUSE_BUTTON_UP) {
+                            exit->Press(renderer);
+                            SDL_RenderPresent(renderer);
+                            keepGoing = false;
+                        }
+                    }
+                }
             }
             events.push_back(event);
         }
@@ -131,9 +141,9 @@ int main(int argc, char** argv) {
                 blocks.push_back(new Block(blockTexture));
                 cooldownSpawn = gameTime;
             }
-            game.Update(dt, gameTime, gameStart, isGameOver, ch, events, blocks, menu);
-            game.Collisions(gameTime, isGameOver, renderer, blocks, ch);
-            game.GameRenderer(gameStart, WINDOW_WIDTH, renderer, ch, blocks, bg, menu, exit, start, gameOver);
+            game.Update(dt, gameTime, gameStart, ch, events, blocks, menu);
+            game.Collisions(gameTime, renderer, blocks, ch);
+            game.GameRenderer(gameStart, WINDOW_WIDTH, renderer, ch, blocks, bg, menu, exit, start, gameOver, gridTextures);
         }
         else {
             menu.Render(renderer, exit, start, gameOver, bg, WINDOW_WIDTH);
@@ -147,6 +157,18 @@ int main(int argc, char** argv) {
     delete start; start = nullptr;
     delete exit; exit = nullptr;
     delete gameOver; gameOver = nullptr;
+    for (int i = 0; i < gridTextures.size(); i++) {
+        if (gridTextures[i]) {
+            SDL_DestroyTexture(gridTextures[i]);
+        }
+    }
+    gridTextures.clear();
+    for (int i = 0; i < characterTextures.size(); i++) {
+        if (characterTextures[i]) {
+            SDL_DestroyTexture(characterTextures[i]);
+        }
+    }
+    characterTextures.clear();
     for (int i = 0; i < blocks.size(); i++) {
         delete blocks[i]; blocks[i] = nullptr;
     }

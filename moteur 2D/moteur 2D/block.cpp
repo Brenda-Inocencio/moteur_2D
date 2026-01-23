@@ -20,9 +20,9 @@ Block::~Block() {
 
 }
 
-void Block::Render(SDL_Renderer* _renderer) {
+void Block::Render(SDL_Renderer* _renderer, float y_camera) {
 	if (texture) {
-		SDL_FRect rect = {pos_x, pos_y, 110, 140};
+		SDL_FRect rect = {pos_x, pos_y + y_camera, 110, 140};
 		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }

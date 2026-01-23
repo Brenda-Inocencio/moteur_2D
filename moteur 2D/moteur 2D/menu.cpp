@@ -7,7 +7,7 @@ Menu::Menu() {
     state = CHSTATE_MENU;
 }
 
-void Menu::Update(float dt, bool& gameStart, bool isGameOver) {
+void Menu::Update(float dt, bool& gameStart) {
     State newState = state;
     switch (state) {
     case CHSTATE_MENU:

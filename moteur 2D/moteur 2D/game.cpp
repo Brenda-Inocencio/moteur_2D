@@ -5,7 +5,7 @@
 #include "menu.h"
 #include "button.h"
 
-void Game::Collisions(float now, bool& isGameOver, SDL_Renderer* renderer, std::vector<Block*>& blocks, Character& ch) {
+void Game::Collisions(float now, SDL_Renderer* renderer, std::vector<Block*>& blocks, Character& ch) {
     for (Block* bl : blocks) {
         float bx = bl->GetPosX(); 
         float by = bl->GetBottomY();
@@ -33,9 +33,16 @@ void Game::Collisions(float now, bool& isGameOver, SDL_Renderer* renderer, std::
 }
 
 void Game::GameRenderer(bool gameStart, float winWidth, SDL_Renderer* renderer, Character& ch, 
-    std::vector<Block*>& blocks, Background& bg, Menu& menu, Button* exit, Button* start, Button* gameOver) {
+    std::vector<Block*>& blocks, Background& bg, Menu& menu, Button* exit, Button* start, Button* gameOver, 
+    std::vector<SDL_Texture*>& gridTextures) {
     menu.Render(renderer, exit, start, gameOver, bg, winWidth);
     if (gameStart) {
+        elder_scrolls = 344;
+        float y_camera = std::max(0.f, elder_scrolls - ch.GetPosY());
+        bg.Render(renderer, winWidth, y_camera, gridTextures[1]);
+        /*if (y_camera > 0) {
+            bg.Render(renderer, winWidth, y_camera, gridTextures[2]);
+        }//y_camera - hauteur*/
         ch.Render(renderer);
         for (Block* bl : blocks) {
             bl->Render(renderer);
@@ -43,9 +50,9 @@ void Game::GameRenderer(bool gameStart, float winWidth, SDL_Renderer* renderer, 
     }
 }
 
-void Game::Update(float dt, float gameTime, bool& gameStart, bool& gameOver, Character& ch, 
+void Game::Update(float dt, float gameTime, bool& gameStart, Character& ch, 
     std::vector<SDL_Event> events, std::vector<Block*>& blocks, Menu& menu) {
-    menu.Update(dt, gameStart, gameOver);
+    menu.Update(dt, gameStart);
     ch.Update(dt, gameTime, events, blocks, menu);
     for (Block* bl : blocks) {
         bl->Update(gameTime);
