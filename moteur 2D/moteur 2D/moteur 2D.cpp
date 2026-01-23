@@ -18,7 +18,7 @@
 #define WINDOW_HEIGHT 768
 #define CHARACTER_MAX_IMAGE 7
 
-const char* characterImage[CHARACTER_MAX_IMAGE]{
+const char* characterImage[CHARACTER_MAX_IMAGE] {
      "character_static.png",
      "character_walking_left.png",
      "character_walking_right.png",
@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     std::vector<SDL_Texture*> characterTextures = {nullptr};
     SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
     std::vector<Block*> blocks;
-
+   
     for (int i = 0; i < CHARACTER_MAX_IMAGE; i++) {
         characterTextures.push_back(IMG_LoadTexture(renderer, characterImage[i]));
     }
@@ -150,6 +150,12 @@ int main(int argc, char** argv) {
         delete blocks[i]; blocks[i] = nullptr;
     }
     blocks.clear();
+    for (int i = 0; i < characterTextures.size(); i++) {
+        if (characterTextures[i]) {
+            SDL_DestroyTexture(characterTextures[i]);
+        }
+    }
+    characterTextures.clear();
     SDL_Quit();
     TTF_Quit();
     return 0;
