@@ -12,12 +12,6 @@ void Game::Collisions(float now, SDL_Renderer* renderer, std::vector<Block*>& bl
         float cx = ch.GetPosX();          
         float cy = ch.GetPosY();
 
-     
-
-        if (bl->collision && bl->GetPosY() <= bl->GetPosY() - (38 * 16)) {
-            isGameOver = true;
-        }
-
         for (int i = 0; i < blocks.size(); i++) {
             if (bl != blocks[i]) {
                 if (blocks[i]->GetPosX() == bx) {
@@ -32,10 +26,10 @@ void Game::Collisions(float now, SDL_Renderer* renderer, std::vector<Block*>& bl
     }
 }
 
-void Game::GameRenderer(bool gameStart, float winWidth, SDL_Renderer* renderer, Character& ch, 
+void Game::GameRenderer(bool gameStart, int winWidth, SDL_Renderer* renderer, Character& ch, 
     std::vector<Block*>& blocks, Background& bg, Menu& menu, Button* exit, Button* start, Button* gameOver, 
     std::vector<SDL_Texture*>& gridTextures) {
-    menu.Render(renderer, exit, start, gameOver, bg, winWidth);
+    menu.Render(renderer, exit, start, gameOver);
     if (gameStart) {
         elder_scrolls = 344;
         float y_camera = std::max(0.f, elder_scrolls - ch.GetPosY());
@@ -45,7 +39,7 @@ void Game::GameRenderer(bool gameStart, float winWidth, SDL_Renderer* renderer, 
         }//y_camera - hauteur*/
         ch.Render(renderer);
         for (Block* bl : blocks) {
-            bl->Render(renderer);
+            bl->Render(renderer, y_camera);
         }
     }
 }

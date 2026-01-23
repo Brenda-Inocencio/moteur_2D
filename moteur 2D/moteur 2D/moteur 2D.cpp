@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
             game.GameRenderer(gameStart, WINDOW_WIDTH, renderer, ch, blocks, bg, menu, exit, start, gameOver, gridTextures);
         }
         else {
-            menu.Render(renderer, exit, start, gameOver, bg, WINDOW_WIDTH);
+            menu.Render(renderer, exit, start, gameOver);
         }
         
         SDL_RenderPresent(renderer);
