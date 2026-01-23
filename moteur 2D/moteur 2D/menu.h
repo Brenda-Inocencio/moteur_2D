@@ -1,9 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <vector>
 
-struct SDL_Renderer;
 class Background;
 class Character;
 class Block;
@@ -20,7 +18,7 @@ class Menu {
 	} state;
 public:
 	Menu();
-	void Update(float dt, int winWidth, bool& gameStart, bool isGameOver, Background* bg, 
+	void Update(float dt, int winWidth, bool& gameStart, bool isGameOver, Background& bg, 
 		SDL_Renderer* renderer, Button* exit, Button* start, Button* gameOver);
 	void MenuRenderer(SDL_Renderer* renderer, Button* exit, Button* start);
 	void MenuGameOverRenderer(SDL_Renderer* renderer, Button* gameOver);

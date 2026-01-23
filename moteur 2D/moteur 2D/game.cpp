@@ -33,7 +33,7 @@ void Game::Collisions(float now, bool& isGameOver, SDL_Renderer* renderer, std::
     }
 }
 
-void Game::GameRenderer(bool gameStart, SDL_Renderer* renderer, Character& ch, std::vector<Block*>& blocks, const char* characterTextures) {
+void Game::GameRenderer(bool gameStart, SDL_Renderer* renderer, Character& ch, std::vector<Block*>& blocks) {
     if (gameStart) {
         ch.Render(renderer);
         for (Block* bl : blocks) {
@@ -43,7 +43,7 @@ void Game::GameRenderer(bool gameStart, SDL_Renderer* renderer, Character& ch, s
 }
 
 void Game::Update(float dt, float gameTime, Character& ch, std::vector<SDL_Event> events, std::vector<Block*>& blocks) {
-    ch.Update(dt, events, gameTime, blocks);
+    ch.Update(dt, gameTime, events, blocks);
     for (Block* bl : blocks) {
         bl->Update(gameTime);
     }

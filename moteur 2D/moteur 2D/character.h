@@ -14,6 +14,8 @@ class Character {
 	float width;
 	int speed;
 	float jumpingTime;
+	std::vector<SDL_Texture*> textures;
+	SDL_Texture* texture;
 	enum State {
 		CHSTATE_STATIC,
 		CHSTATE_WALKING,
@@ -28,11 +30,10 @@ public:
 	inline float GetPosY() const { return pos_y; }
 	inline float GetRightX() const { return pos_x + width; }
 	inline float GetBottomY() const { return pos_y + height; }
-	SDL_Texture* texture;
 	~Character();
-	Character();
-	void Render(SDL_Renderer* _renderer, SDL_Texture* chTexture);
-	void Update(float dt, std::vector<SDL_Event>& events, float now, std::vector<Block*> blocks);
+	Character(std::vector<SDL_Texture*>& _textures);
+	void Render(SDL_Renderer* _renderer);
+	void Update(float dt, float now, std::vector<SDL_Event>& events, std::vector<Block*> blocks);
 	void CollideBlock(std::vector<Block*> blocks);
 	bool isGround(std::vector<Block*> blocks);
 };

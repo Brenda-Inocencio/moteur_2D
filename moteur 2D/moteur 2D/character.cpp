@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 
-Character::Character() {
+Character::Character(std::vector<SDL_Texture*>& _textures) {
 	pos_x = 692;
 	pos_y = 610;
 	state = CHSTATE_STATIC;
@@ -11,15 +11,17 @@ Character::Character() {
 	height = 70;
 	speed = 0;
 	jumpingTime = 0;
+	textures = _textures;
+	texture = textures[1];
 }
 
 Character::~Character() {
 }
 
-void Character::Render(SDL_Renderer* _renderer, SDL_Texture* chTexture) {
-	if (chTexture) {
+void Character::Render(SDL_Renderer* _renderer) {
+	if (texture) {
 		SDL_FRect rect = {pos_x, pos_y, 100, 145};
-		SDL_RenderTexture(_renderer, chTexture, nullptr, &rect);
+		SDL_RenderTexture(_renderer, texture, nullptr, &rect);
 	}
 }
 
@@ -75,15 +77,24 @@ Character::State Character::processEvents(std::vector<SDL_Event>& events, float 
 	return newState;
 }
 
-void Character::Update(float dt, std::vector<SDL_Event>& events, float now, std::vector<Block*> blocks) {
+void Character::Update(float dt, float now, std::vector<SDL_Event>& events, std::vector<Block*> blocks) {
 	State newState = processEvents(events, now);
 
 	switch (state) {
 	case CHSTATE_STATIC:
+		texture = textures[1];
 		break;
 	case CHSTATE_WALKING:
+		if (speed > 0)
+			texture = textures[3];
+		if (speed < 0)
+			texture = textures[2];
 		break;
 	case CHSTATE_JUMPING:
+		if (speed >= 0)
+			texture = textures[5];
+		if (speed < 0)
+			texture = textures[4];
 		pos_y -= 400 * dt;
 		if (now - jumpingTime >= 0.3f) {
 			newState = CHSTATE_FALLING;
@@ -91,6 +102,10 @@ void Character::Update(float dt, std::vector<SDL_Event>& events, float now, std:
 		}
 		break;
 	case CHSTATE_FALLING:
+		if (speed >= 0)
+			texture = textures[7];
+		if (speed < 0)
+			texture = textures[6];
 		pos_y += 200 * dt;
 		if (pos_y >= 610) {
 			pos_y = 610;
