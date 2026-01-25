@@ -9,14 +9,15 @@ class Block;
 class Background;
 class Menu;
 class Button;
+class Win;
 
 class Game {
 	float elder_scrolls; //Euh actually c est une ref a la licence elder scrolls mais en vrai la variable c est pour le debut du scrolling.
 public:
 	void Collisions(float now, SDL_Renderer* renderer, std::vector<Block*>& blocks, Character& ch);
 	void GameRenderer(bool gameStart, int winWidth, SDL_Renderer* renderer, Character& ch,
-		std::vector<Block*>& blocks, Background& bg, Menu& menu, Button* exit, Button* start, Button* gameOver, 
-		std::vector<SDL_Texture*>& gridTextures);
+		std::vector<Block*>& blocks, std::vector<Background*>& bgs, Menu& menu, Button* exit, Button* start, Button* gameOver,
+		std::vector<SDL_Texture*>& gridTextures, Win* win);
 	void Update(float dt, float gameTime, bool& gameStart, Character& ch, 
 		std::vector<SDL_Event> events, std::vector<Block*>& blocks, Menu& menu);
 };

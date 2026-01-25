@@ -11,12 +11,13 @@
 #include "exit.h"
 #include "start.h"
 #include "gameover.h"
+#include "win.h"
 
 #define WORLD_WIDTH 10
 #define WORLD_HEIGHT 100
 #define WINDOW_WIDTH 1024 
 #define WINDOW_HEIGHT 768
-#define GRID_MAX_IMAGE 2
+#define BACKGROUND_MAX_IMAGE 4
 #define CHARACTER_MAX_IMAGE 7
 
 const char* characterImage[CHARACTER_MAX_IMAGE] {
@@ -29,9 +30,11 @@ const char* characterImage[CHARACTER_MAX_IMAGE] {
      "character_falling_right.png"
 };
 
-const char* GridImage[GRID_MAX_IMAGE]{
+const char* backgroundImage[BACKGROUND_MAX_IMAGE]{
      "grid.png",
-     "grid_for_scrolling.png"
+     "grid_for_scrolling.png",
+     "pipes.png",
+     "background.png"
 };
 
 int main(int argc, char** argv) {
@@ -61,12 +64,13 @@ int main(int argc, char** argv) {
     std::vector<SDL_Texture*> characterTextures = {nullptr};
     SDL_Texture* blockTexture = IMG_LoadTexture(renderer, "block.png");
     std::vector<Block*> blocks;
-    std::vector<SDL_Texture*> gridTextures = {nullptr};
+    std::vector<SDL_Texture*> backgroundTextures = {nullptr};
+    std::vector<Background*> bgs;
 
-    for (int i = 0; i < GRID_MAX_IMAGE; i++) {
-        gridTextures.push_back(IMG_LoadTexture(renderer, GridImage[i]));
+    for (int i = 0; i < BACKGROUND_MAX_IMAGE; i++) {
+        backgroundTextures.push_back(IMG_LoadTexture(renderer, backgroundImage[i]));
+        bgs.push_back(new Background(backgroundTextures[i+1]));
     }
-    Background bg(gridTextures);
 
     for (int i = 0; i < CHARACTER_MAX_IMAGE; i++) {
         characterTextures.push_back(IMG_LoadTexture(renderer, characterImage[i]));
@@ -76,6 +80,7 @@ int main(int argc, char** argv) {
     Button* exit = new Exit(renderer);
     Button* start = new Start(renderer);
     Button* gameOver = new GameOver(renderer);
+    Win* win = new Win(renderer);
     Menu menu;
 
     std::vector<SDL_Event> events;
@@ -143,10 +148,10 @@ int main(int argc, char** argv) {
             }
             game.Update(dt, gameTime, gameStart, ch, events, blocks, menu);
             game.Collisions(gameTime, renderer, blocks, ch);
-            game.GameRenderer(gameStart, WINDOW_WIDTH, renderer, ch, blocks, bg, menu, exit, start, gameOver, gridTextures);
+            game.GameRenderer(gameStart, WINDOW_WIDTH, renderer, ch, blocks, bgs, menu, exit, start, gameOver, backgroundTextures, win);
         }
         else {
-            menu.Render(renderer, exit, start, gameOver);
+            menu.Render(renderer, exit, start, gameOver, win);
         }
         
         SDL_RenderPresent(renderer);
@@ -157,28 +162,32 @@ int main(int argc, char** argv) {
     delete start; start = nullptr;
     delete exit; exit = nullptr;
     delete gameOver; gameOver = nullptr;
-    for (int i = 0; i < gridTextures.size(); i++) {
-        if (gridTextures[i]) {
-            SDL_DestroyTexture(gridTextures[i]);
+
+    for (int i = 0; i < backgroundTextures.size(); i++) {
+        if (backgroundTextures[i]) {
+            SDL_DestroyTexture(backgroundTextures[i]);
         }
     }
-    gridTextures.clear();
+    backgroundTextures.clear();
+
+    for (int i = 0; i < bgs.size(); i++) {
+        if (bgs[i]) {
+            delete bgs[i]; bgs[i] = nullptr;
+        }
+    }
+    bgs.clear();
+
     for (int i = 0; i < characterTextures.size(); i++) {
         if (characterTextures[i]) {
             SDL_DestroyTexture(characterTextures[i]);
         }
     }
     characterTextures.clear();
+
     for (int i = 0; i < blocks.size(); i++) {
         delete blocks[i]; blocks[i] = nullptr;
     }
     blocks.clear();
-    for (int i = 0; i < characterTextures.size(); i++) {
-        if (characterTextures[i]) {
-            SDL_DestroyTexture(characterTextures[i]);
-        }
-    }
-    characterTextures.clear();
     SDL_Quit();
     TTF_Quit();
     return 0;

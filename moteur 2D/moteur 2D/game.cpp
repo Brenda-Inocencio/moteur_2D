@@ -4,6 +4,12 @@
 #include "background.h"
 #include "menu.h"
 #include "button.h"
+#include "win.h"
+
+#define DEFAULT_GRID 0
+#define SCROLLING_GRID 1
+#define PIPES 2
+#define BACKGROUND 3
 
 void Game::Collisions(float now, SDL_Renderer* renderer, std::vector<Block*>& blocks, Character& ch) {
     for (Block* bl : blocks) {
@@ -27,16 +33,20 @@ void Game::Collisions(float now, SDL_Renderer* renderer, std::vector<Block*>& bl
 }
 
 void Game::GameRenderer(bool gameStart, int winWidth, SDL_Renderer* renderer, Character& ch, 
-    std::vector<Block*>& blocks, Background& bg, Menu& menu, Button* exit, Button* start, Button* gameOver, 
-    std::vector<SDL_Texture*>& gridTextures) {
-    menu.Render(renderer, exit, start, gameOver);
+    std::vector<Block*>& blocks, std::vector<Background*>& bgs, Menu& menu, Button* exit, Button* start, Button* gameOver,
+    std::vector<SDL_Texture*>& gridTextures, Win* win) {
+    menu.Render(renderer, exit, start, gameOver, win);
     if (gameStart) {
         elder_scrolls = 344;
         float y_camera = std::max(0.f, elder_scrolls - ch.GetPosY());
-        bg.Render(renderer, winWidth, y_camera, gridTextures[1]);
-        /*if (y_camera > 0) {
-            bg.Render(renderer, winWidth, y_camera, gridTextures[2]);
-        }//y_camera - hauteur*/
+        bgs[BACKGROUND]->Render(renderer, winWidth, y_camera);
+        bgs[PIPES]->Render(renderer, winWidth, y_camera);
+        bgs[DEFAULT_GRID]->Render(renderer, winWidth, y_camera);
+        if (y_camera > 0) {
+            bgs[BACKGROUND]->Render(renderer, winWidth, y_camera);
+            bgs[PIPES]->Render(renderer, winWidth, y_camera * 0.5f);
+            bgs[DEFAULT_GRID]->Render(renderer, winWidth, y_camera);
+        }//y_camera - hauteur
         ch.Render(renderer);
         for (Block* bl : blocks) {
             bl->Render(renderer, y_camera);

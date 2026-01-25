@@ -12,13 +12,19 @@
 #define FALLING_RIGHT 7
 #define CHARACTER_RECT_WIDTH 100
 #define CHARACTER_RECT_HEIGHT 145
+#define HEIGHT_WIN -1100
+#define MIN_POSY 610
+#define MIN_POSX 225
+#define MAX_POSX 698
+#define JUMP_TIME 0.3f
+#define CHARACTER_SPEED 100
 
 Character::Character(std::vector<SDL_Texture*>& _textures) {
-	pos_x = 692;
+	pos_x = 465;
 	pos_y = 610;
 	state = CHSTATE_STATIC;
-	chWidth = 50;
-	chHeight = 70;
+	chWidth = 45;
+	chHeight = 76;
 	speed = 0;
 	jumpSpeed = 400;
 	fallSpeed = 200;
@@ -47,11 +53,11 @@ Character::State Character::processEvents(std::vector<SDL_Event>& events, float 
 			if (event.type == SDL_EVENT_KEY_DOWN) {
 				if (event.key.key == SDLK_D) {
 					newState = CHSTATE_WALKING;
-					speed = 100;
+					speed = CHARACTER_SPEED;
 				}
 				else if (event.key.key == SDLK_Q) {
 					newState = CHSTATE_WALKING;
-					speed = -100;
+					speed = -CHARACTER_SPEED;
 				}
 				else if (event.key.key == SDLK_Z) {
 					newState = CHSTATE_JUMPING;
@@ -61,12 +67,14 @@ Character::State Character::processEvents(std::vector<SDL_Event>& events, float 
 			break;
 		case CHSTATE_WALKING:
 			if (event.type == SDL_EVENT_KEY_UP) {
-				if ((speed < 0 && event.key.key == SDLK_Q) || 
+				if ((speed < 0 && event.key.key == SDLK_Q) ||
 					(speed > 0 && event.key.key == SDLK_D)) {
 					speed = 0;
 					newState = CHSTATE_STATIC;
 				}
-				else if (event.key.key == SDLK_Z) {
+			}
+			if (event.type == SDL_EVENT_KEY_DOWN){
+				if (event.key.key == SDLK_Z) {
 					newState = CHSTATE_JUMPING;
 					jumpingTime = now;
 				}
@@ -95,6 +103,9 @@ void Character::Update(float dt, float now, std::vector<SDL_Event>& events, std:
 			texture = textures[WALKING_RIGHT];
 		else 
 			texture = textures[WALKING_LEFT];
+		if (!isGround(blocks)) {
+			newState = CHSTATE_FALLING;
+		}
 		break;
 	case CHSTATE_JUMPING:
 		if (speed >= 0)
@@ -102,7 +113,7 @@ void Character::Update(float dt, float now, std::vector<SDL_Event>& events, std:
 		else
 			texture = textures[JUMPING_LEFT];
 		pos_y -= jumpSpeed * dt;
-		if (now - jumpingTime >= 0.3f) {
+		if (now - jumpingTime >= JUMP_TIME) {
 			newState = CHSTATE_FALLING;
 			jumpingTime = now;
 		}
@@ -113,10 +124,10 @@ void Character::Update(float dt, float now, std::vector<SDL_Event>& events, std:
 		if (speed < 0)
 			texture = textures[FALLING_LEFT];
 		pos_y += fallSpeed * dt;
-		if (pos_y >= 610) {
-			pos_y = 610;
+		if (pos_y >= MIN_POSY) {
+			pos_y = MIN_POSY;
 		}
-		if (pos_y == 610 || isGround(blocks)) {
+		if (isGround(blocks)) {
 			newState = CHSTATE_STATIC;
 			speed = 0;
 		}
@@ -124,11 +135,11 @@ void Character::Update(float dt, float now, std::vector<SDL_Event>& events, std:
 	}
 
 	pos_x += dt * speed;
-	if (pos_x <= 225) {
-		pos_x = 225;
+	if (pos_x <= MIN_POSX) {
+		pos_x = MIN_POSX;
 	}
-	else if (pos_x >= 698) {
-		pos_x = 698;
+	else if (pos_x >= MAX_POSX) {
+		pos_x = MAX_POSX;
 	}
 	else if (speed != 0) {
 		CollideBlock(blocks);
@@ -136,6 +147,9 @@ void Character::Update(float dt, float now, std::vector<SDL_Event>& events, std:
 	if (CollideBlockUp(blocks)) {
 		menu.SetGameOver();
 	}
+	
+	if (pos_y + chHeight <= HEIGHT_WIN)
+		menu.SetWin();
 	if (state != newState) {
 		state = newState;
 	}
@@ -160,9 +174,11 @@ void Character::CollideBlock(std::vector<Block*> blocks) {
 
 bool Character::CollideBlockUp(std::vector<Block*> blocks) {
 	for (auto* bl : blocks) {
-		if ((bl->GetPosX() >= pos_x && bl->GetPosX() <= pos_x + chWidth) || 
-			(bl->GetRightX() >= pos_x && bl->GetRightX() <= pos_x + chWidth)) {
-			if (bl->GetBottomY() >= pos_y) {
+		if (((bl->GetPosX() >= pos_x && bl->GetPosX() <= pos_x + chWidth) ||
+			(bl->GetRightX() >= pos_x && bl->GetRightX() <= pos_x + chWidth)) &&
+			!bl->collision) {
+
+			if (bl->GetBottomY() >= pos_y && bl->GetBottomY() <= pos_y + chHeight) {
 				return true;
 			}
 		}
@@ -172,10 +188,15 @@ bool Character::CollideBlockUp(std::vector<Block*> blocks) {
 
 bool Character::isGround(std::vector<Block*> blocks) {
 	for (auto* bl : blocks) {
-		if ((bl->collision && bl->GetPosY() <= pos_y + chHeight) &&
-			((pos_x >= bl->GetPosX() && pos_x <= bl->GetRightX()) ||
-			(pos_x + chWidth <= bl->GetRightX() && pos_x + chWidth >= bl->GetPosX()))) {
-			pos_y = bl->GetPosY() - chHeight;
+		if (bl->collision && bl->GetPosY() >= pos_y + chHeight) {
+			if ((pos_x >= bl->GetPosX() && pos_x <= bl->GetRightX()) ||
+				(pos_x + chWidth <= bl->GetRightX() && pos_x + chWidth >= bl->GetPosX())) {
+
+				pos_y = bl->GetPosY() - chHeight;
+				return true;
+			}
+		}
+		else if (pos_y == MIN_POSY) {
 			return true;
 		}
 	}

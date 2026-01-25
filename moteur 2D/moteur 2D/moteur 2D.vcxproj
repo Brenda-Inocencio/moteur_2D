@@ -149,6 +149,7 @@
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="moteur 2D.cpp" />
     <ClCompile Include="start.cpp" />
+    <ClCompile Include="win.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="background.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="gameover.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="start.h" />
+    <ClInclude Include="win.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
